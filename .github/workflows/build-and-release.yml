@@ -26,6 +26,13 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
+      - name: Create and Push Tag
+        uses: mathieudutour/github-tag-action@v5.6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ github.sha }}  # This will use the commit SHA as a tag, but you can customize it
+          create_annotated_tag: true
+
       - name: Upload APK to GitHub Releases
         uses: softprops/action-gh-release@v1
         with:
