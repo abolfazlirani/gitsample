@@ -1,10 +1,3 @@
-name: Build and Release APK
-
-on:
-  push:
-    branches:
-      - master  # Change this to match your branch, or add more branches as needed
-
 jobs:
   build:
     permissions: write-all # this is the FIX
@@ -14,7 +7,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # Ensures tags are fetched
-
 
       - name: Set up JDK 11
         uses: actions/setup-java@v2
@@ -29,6 +21,11 @@ jobs:
 
       - name: Build APK
         run: flutter build apk --release
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "abiha9480@gmail.com
+          git config --local user.name "abolfazlirani"
 
       - name: Tag the repository
         id: tag
