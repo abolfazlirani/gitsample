@@ -30,14 +30,15 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Create Tag
+      - name: Tag the repository
+        id: tag
         run: |
-          TAG_NAME=$(date +'%Y%m%d%H%M%S')
-          echo "Creating tag $TAG_NAME"
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-
+          # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
+          TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
+          echo "$TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
+          git push origin $TAG
 
       - name: Upload APK to GitHub Releases
         uses: softprops/action-gh-release@v1
