@@ -39,13 +39,21 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      # Build the APK
-      - name: Build APK
+      - name: Build Fat APK
         run: flutter build apk --release
 
-      - name: Sign APK
+      - name: Build Split APKs per ABI
+        run: flutter build apk --release --split-per-abi
+
+      - name: Build AAB
+        run: flutter build appbundle --release
+
+      - name: Sign APKs and AAB
         run: |
-          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/sign.jks build/app/outputs/flutter-apk/app-release.apk "${KEY_ALIAS}" -storepass "${STORE_PASSWORD}" -keypass "${KEY_PASSWORD}"
+          for file in build/app/outputs/flutter-apk/*-release.apk; do
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/sign.jks "$file" "${KEY_ALIAS}" -storepass "${STORE_PASSWORD}" -keypass "${KEY_PASSWORD}"
+          done
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/sign.jks build/app/outputs/bundle/release/app-release.aab "${KEY_ALIAS}" -storepass "${STORE_PASSWORD}" -keypass "${KEY_PASSWORD}"
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
