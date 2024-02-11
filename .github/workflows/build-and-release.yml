@@ -11,9 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
         with:
-          fetch-depth: 0 # Ensures tags are fetched
+          fetch-depth: 2 # Ensures tags and commits are fetched
+
+      - name: Cache Flutter SDK
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ github.workspace }}/flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/internal/*.snapshot') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Cache Dart packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool/pub
+          key: ${{ runner.os }}-dart-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-dart-
 
       - name: Set up JDK 11
         uses: actions/setup-java@v2
@@ -26,29 +46,36 @@ jobs:
         with:
           flutter-version: '3.16.9'
 
+      - name: Get dependencies
+        run: flutter pub get
+
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Create Tag
-        id: create_tag
+      - name: Extract Version and Release Notes
+        id: extract_info
         run: |
-          TAG_NAME=$(date +'%Y%m%d%H%M%S')
-          echo "Creating tag $TAG_NAME"
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
-          echo "::set-output name=tag_name::$TAG_NAME"
+          # Your script to extract version and release notes goes here
+          # The following is just a placeholder:
+          VERSION=$(git log -1 --pretty=%B | grep -oP 'version: \K.*')
+          RELEASE_NOTES=$(git log -1 --pretty=%B | grep -oP 'Release note:\K.*')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "RELEASE_NOTES=$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=release_notes::$RELEASE_NOTES"
 
-      - name: Sleep for 10 seconds
-        run: sleep 10
-
-      - name: Fetch tags
-        run: git fetch --tags
+      - name: Create Tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag ${{ steps.extract_info.outputs.version }}
+          git push origin ${{ steps.extract_info.outputs.version }}
 
       - name: Upload APK to GitHub Releases
-        if: success()
         uses: softprops/action-gh-release@v1
         with:
           files: build/app/outputs/flutter-apk/app-release.apk
-          tag_name: ${{ steps.create_tag.outputs.tag_name }}
+          tag_name: ${{ steps.extract_info.outputs.version }}
+          body: ${{ steps.extract_info.outputs.release_notes }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
