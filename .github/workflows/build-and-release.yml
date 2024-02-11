@@ -16,38 +16,6 @@ jobs:
         with:
           fetch-depth: 2  # Fetch tags and commits
 
-      # Cache the Flutter SDK
-      - name: Cache Flutter SDK
-        uses: actions/cache@v2
-        with:
-          path: |
-            ${{ env.HOME }}/flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/internal/*.snapshot') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
-
-      # Cache Dart packages
-      - name: Cache Dart packages
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.pub-cache
-            ${{ github.workspace }}/.dart_tool/pub
-          key: ${{ runner.os }}-dart-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-dart-
-
-      # Cache Android SDK
-      - name: Cache Android SDK
-        uses: actions/cache@v2
-        with:
-          path: |
-            ${{ env.ANDROID_HOME }}/build-tools
-            ${{ env.ANDROID_HOME }}/platforms
-            ${{ env.ANDROID_HOME }}/platform-tools
-          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-android-sdk-
 
       # Set up JDK 11 for Android builds
       - name: Set up JDK 11
