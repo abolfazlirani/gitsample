@@ -41,7 +41,7 @@ jobs:
 
       # Build the APK
       - name: Build APK
-        run: flutter build apk --release --build-name=$VERSION --build-number=$BUILD_NUMBER
+        run: flutter build apk --release
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
