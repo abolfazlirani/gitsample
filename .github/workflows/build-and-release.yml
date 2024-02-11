@@ -47,9 +47,9 @@ jobs:
         run: |
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/sign.jks build/app/outputs/flutter-apk/app-release.apk "${KEY_ALIAS}" -storepass "${STORE_PASSWORD}" -keypass "${KEY_PASSWORD}"
         env:
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: raman
+          KEY_PASSWORD: ramanraman
+          STORE_PASSWORD: ramanraman
 
       # Extract version and release notes from the commit message
       - name: Extract Version and Release Notes
