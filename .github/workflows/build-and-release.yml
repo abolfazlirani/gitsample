@@ -45,7 +45,7 @@ jobs:
 
       - name: Sign APK
         run: |
-          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/sign.jks build/app/outputs/flutter-apk/app-release.apk $KEY_ALIAS -storepass $STORE_PASSWORD -keypass $KEY_PASSWORD
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/sign.jks build/app/outputs/flutter-apk/app-release.apk "${KEY_ALIAS}" -storepass "${STORE_PASSWORD}" -keypass "${KEY_PASSWORD}"
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
