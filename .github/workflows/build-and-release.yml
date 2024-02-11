@@ -16,7 +16,6 @@ jobs:
         with:
           fetch-depth: 2  # Fetch tags and commits
 
-
       # Set up JDK 11 for Android builds
       - name: Set up JDK 11
         uses: actions/setup-java@v2
@@ -30,13 +29,26 @@ jobs:
         with:
           flutter-version: '3.16.9'
 
+      # Decrypt the signing key
+      - name: Decrypt signing key
+        run: gpg --quiet --batch --yes --decrypt --passphrase="$GPG_PASSPHRASE" --output android/app/sign.jks android/app/sign.jks.gpg
+        env:
+          GPG_PASSPHRASE: ${{ secrets.KEYSTORE_PASSPHRASE }}
+
       # Get all Flutter dependencies
       - name: Get dependencies
         run: flutter pub get
 
       # Build the APK
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --build-name=$VERSION --build-number=$BUILD_NUMBER
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_FILE: ${{ github.workspace }}/android/app/sign.jks
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+
+
 
       # Extract version and release notes from the commit message
       - name: Extract Version and Release Notes
@@ -66,4 +78,5 @@ jobs:
           tag_name: ${{ steps.extract_info.outputs.version }}
           body: ${{ steps.extract_info.outputs.release_notes }}
         env:
+
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
